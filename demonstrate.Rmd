@@ -1,0 +1,179 @@
+---
+title: "Demonstrate problems with using diff(log(cumulative cases)) with NPIs"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A demonstration of some unfortunate properties of the method used in
+[Hsiang](https://onlinelibrary.wiley.com/doi/full/10.1111/eci.13553) and
+[Bendavid](https://onlinelibrary.wiley.com/doi/full/10.1111/eci.13484)
+
+# Setup machinary
+
+We create some machinery for running the SEIR model with NPIs and then
+performing a linear regression on diff(log(cumulative case counts)).
+
+```{r setup_seir}
+source("seir.R")
+
+#' Run linear regression against the diff of the log of case numbers with NPIs.
+#' 
+#' @param y a vector of case numbers
+#' @param npis a dataframe of daily NPI multiplicative effects on R_0, one
+#'     column for each NPI.
+runRegression = function(y, npis) {
+  l_y = log(y)
+  d_l_y = diff(l_y)
+  npi_names = names(npis)
+  n = length(d_l_y)
+  # Just in case there's a mismatch in length between the NPIs and the case data
+  if (n < length(npis[[1]])) {
+    warning(("truncating npis"))
+    npis = lapply(npis, head, n)
+  }
+  # Construct a frame of 0s and 1s to indicate when an NPI was/wasn't active
+  # I.e. when it's multiplicative effect was different to 1.
+  data = data.frame(lapply(npis, sapply, function(r) {
+    if (r == 1)
+      0
+    else
+      1
+  }))
+
+  # Add the case data.  
+  data$d_l_y = d_l_y
+  
+  # Construct the format for the regression which will be
+  # "d_l_y = npi_1 + npi_2 + ..."
+  reg_terms = npi_names
+  npi_formula = paste(reg_terms, collapse = " + ")
+
+  r.model = lm(paste("d_l_y", npi_formula, sep = " ~ "), data = data)
+  #print(summary(r.model))
+  coefficients = r.model$coefficients
+
+  # Return the coefficients and e^c for each coefficient.
+  data.frame("coeffs" = coefficients,
+             "exp(coeffs)" = exp(coefficients))
+}
+
+# Set up things, solve the SEIR model and run the regression.
+generateRegression = function(population, r_0, end_day, npis) {
+  # It takes a while for the model to produce an infected case, so to ensure
+  # that we start from the day of the first infected case, we do extend things.
+  start_day = findFirstInfection(population, r_0, end_day)
+  end_day = end_day + start_day
+  rates = append(rep(1, start_day), mergeNPIs(npis))
+  
+  # Run the SEIR model.
+  model = as.data.frame(seirModel(POPULATION, r_0, end_day, rates))
+  
+  # Regress against cumulative cases.
+  cumulative_cases = (model$I + model$R)[start_day:end_day]
+  runRegression(cumulative_cases, npis)
+}
+
+```
+
+We then choose some parameters for our simulated outbreak.
+The other parameters of the SEIR model are fixed,
+taken from [Piovella](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7445013/),
+see [seir.R](./seir.R).
+
+```{r params}
+POPULATION = 10*1000*1000
+R_0 = 2.4
+DAYS = 30
+
+```
+
+# Bad results
+
+Note in all of the examples below, the intercept (which should represent $R_0$) is estimated to be around $1.2$.
+This is a big indicator that something is wrong with the method.
+
+## Strong NPIs are not seen as strong
+
+This NPI reduces spread by a factor of $100$.
+It essentially ends the outbreak on day 21.
+
+```{r npi_end}
+npis = NPIs(list(NPI(0.01, 21, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+It is seen as essentially the same
+as a $0.5\times$ NPI on day 5 above
+(which only cuts $R_0$ to $1.2$,
+allowing exponential growth to continue).
+
+```{r npi_not_end}
+npis = NPIs(list(NPI(0.5, 5, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+
+## Measured impact is highly dependent on start day
+
+Here, the same strength NPI ($0.5\times$) is initiated on a range of days
+resulting in widely varying weights
+
+```{r npi_equal_5}
+npis = NPIs(list(NPI(.5, 5, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+```{r npi_equal_11}
+npis = NPIs(list(NPI(.5, 11, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+```{r npi_equal_21}
+npis = NPIs(list(NPI(.5, 21, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+Compare the last one, $.5\times$ on day 21 with, $0.78\times$ on day 5.
+They are both considered approximately equal.
+
+```{r npi_equal_diff}
+npis = NPIs(list(NPI(.78, 5, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+
+## Bad NPI looks good
+
+The first NPI here *increases* spread by $1.1\times$ 
+and the second decreases spread by $0.9\times$
+but the regression finds them to be almost equal.
+```{r npi_bad_looks_good}
+npis = NPIs(list(NPI(1.1, 11, DAYS),
+                 NPI(0.9, 21, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+
+Reordering them partly corrects this
+however the second one is still measured as decreasing spread.
+
+```{r npi_bad_looks_good_order}
+npis = NPIs(list(NPI(0.9, 11, DAYS),
+                 NPI(1.1, 21, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+
+## A series of equal NPIs is seen as unequal
+
+Here we apply 3 NPIs of the same strength ($0.5\times$) cumulatively,
+starting on diffent days.
+
+```{r npi_triple}
+npis = NPIs(list(NPI(0.5, 11, DAYS), 
+                 NPI(0.5, 21, DAYS), 
+                 NPI(0.5, 25, DAYS)))
+generateRegression(POPULATION, R_0, DAYS, npis)
+```
+
+# Conclusion
+
+The method may be able to detect whether the overall impact
+of a group of NPI was to reduce spread
+but it is quite unsuitable for comparing NPIs
+either within a country or across countries.
