@@ -237,7 +237,7 @@ DAYS = 30</code></pre>
 </div>
 <div id="bad-results" class="section level1">
 <h1>Bad results</h1>
-<p>Note in all of the examples below, the intercept (which should represent <span class="math inline">\(R_0\)</span>) is estimated to be around <span class="math inline">\(1.2\)</span>. This is a big indicator that something is wrong with the method.</p>
+<p>Note in all of the examples below, the intercept (which should represent <span class="math inline">\(R_0\)</span>) is estimated to be around <span class="math inline">\(1.2\)</span>. This is a big indicator that something is wrong with the method. Similarly most of the NPIs are estimated at as <span class="math inline">\(&gt;0.9\times\)</span> which is far away from their true multiplicative impact on <span class="math inline">\(R\)</span>.</p>
 <div id="strong-npis-are-not-seen-as-strong" class="section level2">
 <h2>Strong NPIs are not seen as strong</h2>
 <p>This NPI reduces spread by a factor of <span class="math inline">\(100\)</span>. It essentially ends the outbreak on day 21.</p>
@@ -246,7 +246,7 @@ generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
 <pre><code>##                 coeffs exp.coeffs.
 ## (Intercept)  0.1659253   1.1804849
 ## npi_1       -0.1077125   0.8978857</code></pre>
-<p>It is seen as essentially the same as a <span class="math inline">\(0.5\times\)</span> NPI on day 5 above (which only cuts <span class="math inline">\(R_0\)</span> to <span class="math inline">\(1.2\)</span>, allowing exponential growth to continue).</p>
+<p>It is seen as slightly weaker than a <span class="math inline">\(0.5\times\)</span> NPI on day 5 (which only cuts <span class="math inline">\(R_0\)</span> to <span class="math inline">\(1.2\)</span>, allowing exponential growth to continue) <span class="math inline">\(0.1084048 &lt; -0.1077125\)</span>.</p>
 <pre class="r"><code>npis = NPIs(list(NPI(0.5, 5, DAYS)))
 generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
 <pre><code>##                 coeffs exp.coeffs.
