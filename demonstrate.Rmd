@@ -88,6 +88,10 @@ POPULATION = 10*1000*1000
 R_0 = 2.4
 DAYS = 30
 
+#' Wrap it all up in a simple function.
+regressWithNPIs = function(npis) {
+  generateRegression(POPULATION, R_0, DAYS, NPIs(npis))
+}
 ```
 
 # Bad results
@@ -103,8 +107,7 @@ This NPI reduces spread by a factor of $100$.
 It essentially ends the outbreak on day 21.
 
 ```{r npi_end}
-npis = NPIs(list(NPI(0.01, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(0.01, 21, DAYS)))
 ```
 It is seen as slightly weaker than
 a $0.5\times$ NPI on day 5
@@ -120,8 +123,7 @@ this means that once $R<1$
 the measurement greatly loses sensitivity.
 
 ```{r npi_not_end}
-npis = NPIs(list(NPI(0.5, 5, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(0.5, 5, DAYS)))
 ```
 
 ## Measured impact is highly dependent on start day
@@ -130,23 +132,19 @@ Here, the same strength NPI ($0.5\times$) is initiated on a range of days
 resulting in widely varying weights
 
 ```{r npi_equal_5}
-npis = NPIs(list(NPI(.5, 5, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(.5, 5, DAYS)))
 ```
 ```{r npi_equal_11}
-npis = NPIs(list(NPI(.5, 11, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(.5, 11, DAYS)))
 ```
 ```{r npi_equal_21}
-npis = NPIs(list(NPI(.5, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(.5, 21, DAYS)))
 ```
 Compare the last one, $.5\times$ on day 21 with, $0.78\times$ on day 5.
 They are both considered approximately equal.
 
 ```{r npi_equal_diff}
-npis = NPIs(list(NPI(.78, 5, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(.78, 5, DAYS)))
 ```
 
 ## Bad NPI looks good
@@ -155,18 +153,16 @@ The first NPI here *increases* spread by $1.1\times$
 and the second decreases spread by $0.9\times$
 but the regression finds them to be almost equal.
 ```{r npi_bad_looks_good}
-npis = NPIs(list(NPI(1.1, 11, DAYS),
-                 NPI(0.9, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(1.1, 11, DAYS),
+                     NPI(0.9, 21, DAYS)))
 ```
 
 Reordering them partly corrects this
 however the second one is still measured as decreasing spread.
 
 ```{r npi_bad_looks_good_order}
-npis = NPIs(list(NPI(0.9, 11, DAYS),
-                 NPI(1.1, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(0.9, 11, DAYS),
+                     NPI(1.1, 21, DAYS)))
 ```
 
 ## A series of equal NPIs is seen as unequal
@@ -175,10 +171,9 @@ Here we apply 3 NPIs of the same strength ($0.5\times$) cumulatively,
 starting on diffent days.
 
 ```{r npi_triple}
-npis = NPIs(list(NPI(0.5, 11, DAYS), 
-                 NPI(0.5, 21, DAYS), 
-                 NPI(0.5, 25, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)
+regressWithNPIs(list(NPI(0.5, 11, DAYS),
+                     NPI(0.5, 21, DAYS),
+                     NPI(0.5, 25, DAYS)))
 ```
 
 # Conclusion

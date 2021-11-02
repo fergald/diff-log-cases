@@ -233,7 +233,12 @@ generateRegression = function(population, r_0, end_day, npis) {
 <p>We then choose some parameters for our simulated outbreak. The other parameters of the SEIR model are fixed, taken from <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7445013/">Piovella</a>, see <a href="./seir.R">seir.R</a>.</p>
 <pre class="r"><code>POPULATION = 10*1000*1000
 R_0 = 2.4
-DAYS = 30</code></pre>
+DAYS = 30
+
+#&#39; Wrap it all up in a simple function.
+regressWithNPIs = function(npis) {
+  generateRegression(POPULATION, R_0, DAYS, NPIs(npis))
+}</code></pre>
 </div>
 <div id="bad-results" class="section level1">
 <h1>Bad results</h1>
@@ -241,15 +246,13 @@ DAYS = 30</code></pre>
 <div id="strong-npis-are-not-seen-as-strong" class="section level2">
 <h2>Strong NPIs are not seen as strong</h2>
 <p>This NPI reduces spread by a factor of <span class="math inline">\(100\)</span>. It essentially ends the outbreak on day 21.</p>
-<pre class="r"><code>npis = NPIs(list(NPI(0.01, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(0.01, 21, DAYS)))</code></pre>
 <pre><code>##                 coeffs exp.coeffs.
 ## (Intercept)  0.1659253   1.1804849
 ## npi_1       -0.1077125   0.8978857</code></pre>
 <p>It is seen as slightly weaker than a <span class="math inline">\(0.5\times\)</span> NPI on day 5 (which only cuts <span class="math inline">\(R_0\)</span> to <span class="math inline">\(1.2\)</span>, allowing exponential growth to continue) <span class="math inline">\(0.1084048 &lt; -0.1077125\)</span>.</p>
 <p>Being based on cumulative numbers, the method has a major blind-spot for strong NPIs. The ratio of cumulative cases is bounded below by <span class="math inline">\(1\)</span> but is unbounded above this means that once <span class="math inline">\(R&lt;1\)</span> the measurement greatly loses sensitivity.</p>
-<pre class="r"><code>npis = NPIs(list(NPI(0.5, 5, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(0.5, 5, DAYS)))</code></pre>
 <pre><code>##                 coeffs exp.coeffs.
 ## (Intercept)  0.1858069   1.2041897
 ## npi_1       -0.1084048   0.8972643</code></pre>
@@ -257,24 +260,20 @@ generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
 <div id="measured-impact-is-highly-dependent-on-start-day" class="section level2">
 <h2>Measured impact is highly dependent on start day</h2>
 <p>Here, the same strength NPI (<span class="math inline">\(0.5\times\)</span>) is initiated on a range of days resulting in widely varying weights</p>
-<pre class="r"><code>npis = NPIs(list(NPI(.5, 5, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(.5, 5, DAYS)))</code></pre>
 <pre><code>##                 coeffs exp.coeffs.
 ## (Intercept)  0.1858069   1.2041897
 ## npi_1       -0.1084048   0.8972643</code></pre>
-<pre class="r"><code>npis = NPIs(list(NPI(.5, 11, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(.5, 11, DAYS)))</code></pre>
 <pre><code>##                  coeffs exp.coeffs.
 ## (Intercept)  0.17456962   1.1907336
 ## npi_1       -0.09195257   0.9121484</code></pre>
-<pre class="r"><code>npis = NPIs(list(NPI(.5, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(.5, 21, DAYS)))</code></pre>
 <pre><code>##                  coeffs exp.coeffs.
 ## (Intercept)  0.16592528    1.180485
 ## npi_1       -0.06333285    0.938631</code></pre>
 <p>Compare the last one, <span class="math inline">\(.5\times\)</span> on day 21 with, <span class="math inline">\(0.78\times\)</span> on day 5. They are both considered approximately equal.</p>
-<pre class="r"><code>npis = NPIs(list(NPI(.78, 5, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(.78, 5, DAYS)))</code></pre>
 <pre><code>##                  coeffs exp.coeffs.
 ## (Intercept)  0.18580687   1.2041897
 ## npi_1       -0.06387188   0.9381252</code></pre>
@@ -282,17 +281,15 @@ generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
 <div id="bad-npi-looks-good" class="section level2">
 <h2>Bad NPI looks good</h2>
 <p>The first NPI here <em>increases</em> spread by <span class="math inline">\(1.1\times\)</span> and the second decreases spread by <span class="math inline">\(0.9\times\)</span> but the regression finds them to be almost equal.</p>
-<pre class="r"><code>npis = NPIs(list(NPI(1.1, 11, DAYS),
-                 NPI(0.9, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(1.1, 11, DAYS),
+                     NPI(0.9, 21, DAYS)))</code></pre>
 <pre><code>##                   coeffs exp.coeffs.
 ## (Intercept)  0.174569615   1.1907336
 ## npi_1       -0.006581353   0.9934403
 ## npi_2       -0.006523106   0.9934981</code></pre>
 <p>Reordering them partly corrects this however the second one is still measured as decreasing spread.</p>
-<pre class="r"><code>npis = NPIs(list(NPI(0.9, 11, DAYS),
-                 NPI(1.1, 21, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(0.9, 11, DAYS),
+                     NPI(1.1, 21, DAYS)))</code></pre>
 <pre><code>##                   coeffs exp.coeffs.
 ## (Intercept)  0.174569615   1.1907336
 ## npi_1       -0.027939598   0.9724471
@@ -301,10 +298,9 @@ generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
 <div id="a-series-of-equal-npis-is-seen-as-unequal" class="section level2">
 <h2>A series of equal NPIs is seen as unequal</h2>
 <p>Here we apply 3 NPIs of the same strength (<span class="math inline">\(0.5\times\)</span>) cumulatively, starting on diffent days.</p>
-<pre class="r"><code>npis = NPIs(list(NPI(0.5, 11, DAYS), 
-                 NPI(0.5, 21, DAYS), 
-                 NPI(0.5, 25, DAYS)))
-generateRegression(POPULATION, R_0, DAYS, npis)</code></pre>
+<pre class="r"><code>regressWithNPIs(list(NPI(0.5, 11, DAYS),
+                     NPI(0.5, 21, DAYS),
+                     NPI(0.5, 25, DAYS)))</code></pre>
 <pre><code>##                  coeffs exp.coeffs.
 ## (Intercept)  0.17456962   1.1907336
 ## npi_1       -0.06934883   0.9330012
