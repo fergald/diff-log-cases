@@ -165,6 +165,17 @@ regressWithNPIs(list(NPI(0.9, 11, DAYS),
                      NPI(1.1, 21, DAYS)))
 ```
 
+Worse, the earlier a "bad" NPI starts, the better it looks.
+
+Here is a $1.1\times$ NPI starting on day 5.
+```{r npi_bad_5}
+regressWithNPIs(list(NPI(1.1, 5, DAYS)))
+```
+
+Here's the same NPI starting on day 11
+```{r npi_bad_11}
+regressWithNPIs(list(NPI(1.1, 11, DAYS)))
+```
 ## A series of equal NPIs is seen as unequal
 
 Here we apply 3 NPIs of the same strength ($0.5\times$) cumulatively,

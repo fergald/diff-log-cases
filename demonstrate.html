@@ -294,6 +294,17 @@ regressWithNPIs = function(npis) {
 ## (Intercept)  0.174569615   1.1907336
 ## npi_1       -0.027939598   0.9724471
 ## npi_2       -0.002676743   0.9973268</code></pre>
+<p>Worse, the earlier a “bad” NPI starts, the better it looks.</p>
+<p>Here is a <span class="math inline">\(1.1\times\)</span> NPI starting on day 5.</p>
+<pre class="r"><code>regressWithNPIs(list(NPI(1.1, 5, DAYS)))</code></pre>
+<pre><code>##                  coeffs exp.coeffs.
+## (Intercept)  0.18580687   1.2041897
+## npi_1       -0.01119961   0.9888629</code></pre>
+<p>Here’s the same NPI starting on day 11</p>
+<pre class="r"><code>regressWithNPIs(list(NPI(1.1, 11, DAYS)))</code></pre>
+<pre><code>##                   coeffs exp.coeffs.
+## (Intercept)  0.174569615   1.1907336
+## npi_1       -0.003917429   0.9960902</code></pre>
 </div>
 <div id="a-series-of-equal-npis-is-seen-as-unequal" class="section level2">
 <h2>A series of equal NPIs is seen as unequal</h2>
