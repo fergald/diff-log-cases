@@ -260,23 +260,154 @@ regressWithNPIs = function(npis) {
 <div id="measured-impact-is-highly-dependent-on-start-day" class="section level2">
 <h2>Measured impact is highly dependent on start day</h2>
 <p>Here, the same strength NPI (<span class="math inline">\(0.5\times\)</span>) is initiated on a range of days resulting in widely varying weights</p>
-<pre class="r"><code>regressWithNPIs(list(NPI(.5, 5, DAYS)))</code></pre>
-<pre><code>##                 coeffs exp.coeffs.
-## (Intercept)  0.1858069   1.2041897
-## npi_1       -0.1084048   0.8972643</code></pre>
-<pre class="r"><code>regressWithNPIs(list(NPI(.5, 11, DAYS)))</code></pre>
-<pre><code>##                  coeffs exp.coeffs.
-## (Intercept)  0.17456962   1.1907336
-## npi_1       -0.09195257   0.9121484</code></pre>
+<pre class="r"><code>by_start_day = d=data.frame(&quot;start_day&quot;=rep(NA, 29), &quot;coeff&quot;=rep(NA, 29))
+for (d in 2:30) {
+  r = regressWithNPIs(list(NPI(.5, d, DAYS)))
+  by_start_day[d, ] = list(d, r$coeff[2])
+}
+knitr::kable(by_start_day)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">start_day</th>
+<th align="right">coeff</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">-0.1188587</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">-0.1150736</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">-0.1116134</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">-0.1084048</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">-0.1053916</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">-0.1025301</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="right">-0.0997839</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="right">-0.0971227</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">-0.0945201</td>
+</tr>
+<tr class="odd">
+<td align="right">11</td>
+<td align="right">-0.0919526</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="right">-0.0893979</td>
+</tr>
+<tr class="odd">
+<td align="right">13</td>
+<td align="right">-0.0868355</td>
+</tr>
+<tr class="even">
+<td align="right">14</td>
+<td align="right">-0.0842449</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="right">-0.0816052</td>
+</tr>
+<tr class="even">
+<td align="right">16</td>
+<td align="right">-0.0788946</td>
+</tr>
+<tr class="odd">
+<td align="right">17</td>
+<td align="right">-0.0760896</td>
+</tr>
+<tr class="even">
+<td align="right">18</td>
+<td align="right">-0.0731640</td>
+</tr>
+<tr class="odd">
+<td align="right">19</td>
+<td align="right">-0.0700877</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">-0.0668251</td>
+</tr>
+<tr class="odd">
+<td align="right">21</td>
+<td align="right">-0.0633329</td>
+</tr>
+<tr class="even">
+<td align="right">22</td>
+<td align="right">-0.0595573</td>
+</tr>
+<tr class="odd">
+<td align="right">23</td>
+<td align="right">-0.0554290</td>
+</tr>
+<tr class="even">
+<td align="right">24</td>
+<td align="right">-0.0508567</td>
+</tr>
+<tr class="odd">
+<td align="right">25</td>
+<td align="right">-0.0457176</td>
+</tr>
+<tr class="even">
+<td align="right">26</td>
+<td align="right">-0.0398446</td>
+</tr>
+<tr class="odd">
+<td align="right">27</td>
+<td align="right">-0.0330165</td>
+</tr>
+<tr class="even">
+<td align="right">28</td>
+<td align="right">-0.0249846</td>
+</tr>
+<tr class="odd">
+<td align="right">29</td>
+<td align="right">-0.0157741</td>
+</tr>
+<tr class="even">
+<td align="right">30</td>
+<td align="right">-0.0086625</td>
+</tr>
+</tbody>
+</table>
+<div id="comparison" class="section level3">
+<h3>Comparison</h3>
+<p>Compare <span class="math inline">\(.5\times\)</span> on day 21 with, <span class="math inline">\(0.78\times\)</span> on day 5. They are both considered approximately equal.</p>
 <pre class="r"><code>regressWithNPIs(list(NPI(.5, 21, DAYS)))</code></pre>
 <pre><code>##                  coeffs exp.coeffs.
 ## (Intercept)  0.16592528    1.180485
 ## npi_1       -0.06333285    0.938631</code></pre>
-<p>Compare the last one, <span class="math inline">\(.5\times\)</span> on day 21 with, <span class="math inline">\(0.78\times\)</span> on day 5. They are both considered approximately equal.</p>
 <pre class="r"><code>regressWithNPIs(list(NPI(.78, 5, DAYS)))</code></pre>
 <pre><code>##                  coeffs exp.coeffs.
 ## (Intercept)  0.18580687   1.2041897
 ## npi_1       -0.06387188   0.9381252</code></pre>
+</div>
 </div>
 <div id="bad-npi-looks-good" class="section level2">
 <h2>Bad NPI looks good</h2>

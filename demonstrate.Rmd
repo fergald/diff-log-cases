@@ -131,17 +131,23 @@ regressWithNPIs(list(NPI(0.5, 5, DAYS)))
 Here, the same strength NPI ($0.5\times$) is initiated on a range of days
 resulting in widely varying weights
 
-```{r npi_equal_5}
-regressWithNPIs(list(NPI(.5, 5, DAYS)))
+```{r by_start_day}
+by_start_day = d=data.frame("start_day"=rep(NA, 29), "coeff"=rep(NA, 29))
+for (d in 2:30) {
+  r = regressWithNPIs(list(NPI(.5, d, DAYS)))
+  by_start_day[d, ] = list(d, r$coeff[2])
+}
+knitr::kable(by_start_day)
 ```
-```{r npi_equal_11}
-regressWithNPIs(list(NPI(.5, 11, DAYS)))
-```
+
+### Comparison
+
+Compare $.5\times$ on day 21 with, $0.78\times$ on day 5.
+They are both considered approximately equal.
+
 ```{r npi_equal_21}
 regressWithNPIs(list(NPI(.5, 21, DAYS)))
 ```
-Compare the last one, $.5\times$ on day 21 with, $0.78\times$ on day 5.
-They are both considered approximately equal.
 
 ```{r npi_equal_diff}
 regressWithNPIs(list(NPI(.78, 5, DAYS)))
