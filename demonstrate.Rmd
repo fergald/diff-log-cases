@@ -113,7 +113,7 @@ It is seen as slightly weaker than
 a $0.5\times$ NPI on day 5
 (which only cuts $R_0$ to $1.2$,
 allowing exponential growth to continue)
-$0.1084048 < -0.1077125$.
+$-0.1084048 < -0.1077125$.
 
 Being based on cumulative numbers,
 the method has a major blind-spot for strong NPIs.

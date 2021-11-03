@@ -250,7 +250,7 @@ regressWithNPIs = function(npis) {
 <pre><code>##                 coeffs exp.coeffs.
 ## (Intercept)  0.1659253   1.1804849
 ## npi_1       -0.1077125   0.8978857</code></pre>
-<p>It is seen as slightly weaker than a <span class="math inline">\(0.5\times\)</span> NPI on day 5 (which only cuts <span class="math inline">\(R_0\)</span> to <span class="math inline">\(1.2\)</span>, allowing exponential growth to continue) <span class="math inline">\(0.1084048 &lt; -0.1077125\)</span>.</p>
+<p>It is seen as slightly weaker than a <span class="math inline">\(0.5\times\)</span> NPI on day 5 (which only cuts <span class="math inline">\(R_0\)</span> to <span class="math inline">\(1.2\)</span>, allowing exponential growth to continue) <span class="math inline">\(-0.1084048 &lt; -0.1077125\)</span>.</p>
 <p>Being based on cumulative numbers, the method has a major blind-spot for strong NPIs. The ratio of cumulative cases is bounded below by <span class="math inline">\(1\)</span> but is unbounded above this means that once <span class="math inline">\(R&lt;1\)</span> the measurement greatly loses sensitivity.</p>
 <pre class="r"><code>regressWithNPIs(list(NPI(0.5, 5, DAYS)))</code></pre>
 <pre><code>##                 coeffs exp.coeffs.
