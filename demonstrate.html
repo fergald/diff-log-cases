@@ -439,7 +439,7 @@ knitr::kable(by_start_day)</code></pre>
 </div>
 <div id="a-series-of-equal-npis-is-seen-as-unequal" class="section level2">
 <h2>A series of equal NPIs is seen as unequal</h2>
-<p>Here we apply 3 NPIs of the same strength (<span class="math inline">\(0.5\times\)</span>) cumulatively, starting on diffent days.</p>
+<p>Here we apply 3 NPIs of the same strength (<span class="math inline">\(0.5\times\)</span>) cumulatively, starting on different days. Note also that the first NPI is <span class="math inline">\(0.5\times\)</span> on day 11. When occurring as the only NPI, it was weighted as <span class="math inline">\(-0.0919526\)</span> but here it’s weighted as <span class="math inline">\(-0.06934883\)</span> simply due to the NPIst that follow it.</p>
 <pre class="r"><code>regressWithNPIs(list(NPI(0.5, 11, DAYS),
                      NPI(0.5, 21, DAYS),
                      NPI(0.5, 25, DAYS)))</code></pre>

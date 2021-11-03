@@ -185,7 +185,12 @@ regressWithNPIs(list(NPI(1.1, 11, DAYS)))
 ## A series of equal NPIs is seen as unequal
 
 Here we apply 3 NPIs of the same strength ($0.5\times$) cumulatively,
-starting on diffent days.
+starting on different days.
+Note also that the first NPI is $0.5\times$ on day 11.
+When occurring as the only NPI,
+it was weighted as $-0.0919526$
+but here it's weighted as $-0.06934883$
+simply due to the NPIst that follow it.
 
 ```{r npi_triple}
 regressWithNPIs(list(NPI(0.5, 11, DAYS),
